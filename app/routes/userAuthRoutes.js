@@ -5,7 +5,7 @@ const { userSignupValidationRules, loginValidationRules, validate } = require('.
 const { authenticateUserJWT } = require('../middlewares/authenticateUserJWT')
 const { merchantSubProductValidation } = require('../validators/merchantSubProductValidator'); 
 
-const userAuthController = require('../controllers/userAuthController');
+const userAuthController = require('../controllers/UserAuthController');
 router.post('/signup', userSignupValidationRules(), validate, userAuthController.signup);
 router.post('/login', loginValidationRules(), validate, userAuthController.login);
 
