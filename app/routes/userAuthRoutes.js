@@ -14,7 +14,7 @@ const userController = require('../controllers/userController')
 router.get("/user/get", authenticateUserJWT, userController.getUser);
 
 
-const merchantProductController = require('../controllers/merchantProductController')
+const merchantProductController = require('../controllers/MerchantProductController')
 
 router.get("/merchant-product/list", authenticateUserJWT, merchantProductController.getMerchantProductList);
 
@@ -23,7 +23,7 @@ const merchantSubProductController = require('../controllers/MerchantSubProductC
 router.get("/merchant-sub-product/list", authenticateUserJWT, merchantSubProductController.getMerchantSubProductList);
 router.post('/merchant-sub-product/add', merchantSubProductValidation(), validate, authenticateUserJWT, merchantSubProductController.addMerchantSubProduct);
 
-const unitController = require('../controllers/unitController')
+const unitController = require('../controllers/UnitController')
 
 router.get("/unit/list", authenticateUserJWT, unitController.getUnitList);
 
