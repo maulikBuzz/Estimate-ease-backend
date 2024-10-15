@@ -985,6 +985,8 @@ body {
             '--no-zygote',
             '--use-gl=swiftshader',
             '--window-size=1920,1080',
+            '--disable-dev-shm-usage',
+            '--disable-gpu',
         ];
         //         try {
         //             const browser = await puppeteer.launch({
@@ -1027,19 +1029,15 @@ body {
         //         }
 
         const browser = await puppeteer.launch({
-            executablePath: '/usr/bin/google-chrome',
+            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser',
+            headless: true,
             args,
-            headless: 'new',
             defaultViewport: {
-                deviceScaleFactor: 1,
-                hasTouch: false,
-                height: 1080,
-                isLandscape: true,
-                isMobile: false,
                 width: 1920,
+                height: 1080,
             },
         });
-
+          
         try {
             const page = await browser.newPage();
             const loaded = page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 0 });
