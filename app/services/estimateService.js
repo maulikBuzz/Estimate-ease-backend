@@ -958,17 +958,23 @@ const generatePdf = async ({ user_customer_id, user_id }) => {
         ];
         try {
             const browser = await puppeteer.launch({
-                args, 
+                args: [
+                   '--no-sandbox',
+                   '--disable-setuid-sandbox',
+                   '--disable-dev-shm-usage',
+                ],
                 headless: true,
+                executablePath: '/path/to/chrome',
                 defaultViewport: {
-                    deviceScaleFactor: 1,
-                    hasTouch: false,
-                    height: 1080,
-                    isLandscape: true,
-                    isMobile: false,
-                    width: 1920,
+                   deviceScaleFactor: 1,
+                   hasTouch: false,
+                   height: 1080,
+                   isLandscape: true,
+                   isMobile: false,
+                   width: 1920,
                 },
-            });
+             });
+             
 
             const page = await browser.newPage();
 
@@ -995,12 +1001,7 @@ console.log(pdf);
         } catch (error) {
             console.error("Error generating PDF:", error); 
         }
-
-        return ({
-            status: true,
-            message: "Pdf generated successfully.",
-            data: pdfBuffer
-        });
+ 
     } catch (error) {
         console.error(error);
         return ({
