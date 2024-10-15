@@ -5,4 +5,7 @@ services:
     startCommand: npm start
     envVars:
       - key: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
-        value: "true" # Skips Chromium download if you're installing manually
+        value: "true"  # Skip download if already installed manually
+      - key: PUPPETEER_CACHE_DIR
+        value: "/opt/render/.cache/puppeteer"  # Ensure this path exists
+

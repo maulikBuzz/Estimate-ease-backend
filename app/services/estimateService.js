@@ -991,19 +991,12 @@ body {
                 args: [
                     '--no-sandbox',
                     '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
                 ],
                 headless: true,
-                defaultViewport: {
-                    deviceScaleFactor: 1,
-                    hasTouch: false,
-                    height: 1080,
-                    isLandscape: true,
-                    isMobile: false,
-                    width: 1920,
-                },
-            });            
-             
-
+                executablePath: '/usr/bin/google-chrome', // Adjust this to the correct path
+            });
+              
             const page = await browser.newPage();
 
             const loaded = page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 0 });
