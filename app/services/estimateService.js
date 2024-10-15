@@ -869,8 +869,7 @@ const generatePdf = async ({ user_customer_id, user_id }) => {
                 if (Array.isArray(item.material)) {
                     let validMaterials = item.material.filter(material => material.qty);
                     let validMaterialsCount = validMaterials.length;
-
-                    // Create an image HTML string by looping through item.images
+ 
                     let imagesHtml = '';
                     if (Array.isArray(item.images)) {
                         imagesHtml = item.images.map((image, i) => `
@@ -959,8 +958,7 @@ const generatePdf = async ({ user_customer_id, user_id }) => {
         ];
         try {
             const browser = await puppeteer.launch({
-                args,
-                executablePath: '/path/to/your/chrome',
+                args, 
                 headless: true,
                 defaultViewport: {
                     deviceScaleFactor: 1,
@@ -982,6 +980,7 @@ const generatePdf = async ({ user_customer_id, user_id }) => {
                 format: 'A4',
                 printBackground: true,
             });
+console.log(pdf);
 
             await browser.close();
             const pdfData = Buffer.from(pdf, "binary")
