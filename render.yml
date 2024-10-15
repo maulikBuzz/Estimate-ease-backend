@@ -1,7 +1,10 @@
 services:
   - type: web
     name: my-service
-    buildCommand: npm install
+    buildCommand: 
+      - npm install 
+      - apt-get update
+      - apt-get install -y chromium-browser 
     startCommand: npm start
     build:
     commands:
