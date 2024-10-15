@@ -1027,6 +1027,7 @@ body {
         //         }
 
         const browser = await puppeteer.launch({
+            executablePath: '/usr/bin/google-chrome',
             args,
             headless: true,
             defaultViewport: {
