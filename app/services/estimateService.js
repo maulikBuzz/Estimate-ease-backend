@@ -1029,9 +1029,15 @@ body {
         //         }
 
         const browser = await puppeteer.launch({
-            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser',
+            // executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser',
             headless: true,
-            args,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu',
+                '--window-size=1920,1080',
+            ],
             defaultViewport: {
                 width: 1920,
                 height: 1080,
@@ -1044,6 +1050,8 @@ body {
 
             await page.setContent(html1);
             await loaded;
+
+            await page.goto("https://estimate-easy-frontend-5m8i.vercel.app/");
 
             const pdf = await page.pdf({
                 format: 'A4',
