@@ -1049,9 +1049,7 @@ body {
             const loaded = page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 0 });
 
             await page.setContent(html1);
-            await loaded;
-
-            await page.goto("https://estimate-easy-frontend-5m8i.vercel.app/");
+            await loaded; 
 
             const pdf = await page.pdf({
                 format: 'A4',
