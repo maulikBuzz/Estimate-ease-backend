@@ -869,7 +869,7 @@ const generatePdf = async ({ user_customer_id, user_id }) => {
                 if (Array.isArray(item.material)) {
                     let validMaterials = item.material.filter(material => material.qty);
                     let validMaterialsCount = validMaterials.length;
- 
+
                     let imagesHtml = '';
                     if (Array.isArray(item.images)) {
                         imagesHtml = item.images.map((image, i) => `
@@ -932,7 +932,7 @@ const generatePdf = async ({ user_customer_id, user_id }) => {
 
         html = html.replace('{{#quotationItems}}', itemsHtml);
 
-      const html1=   `<!DOCTYPE html>
+        const html1 = `<!DOCTYPE html>
 <html>
 <head>
 <style>
@@ -986,46 +986,85 @@ body {
             '--use-gl=swiftshader',
             '--window-size=1920,1080',
         ];
-        try {
-            const browser = await puppeteer.launch({
-                args,
-                headless: true,
-                defaultViewport: {
-                    deviceScaleFactor: 1,
-                    hasTouch: false,
-                    height: 1080,
-                    isLandscape: true,
-                    isMobile: false,
-                    width: 1920,
-                },
-            });
-              
-            const page = await browser.newPage();
+        //         try {
+        //             const browser = await puppeteer.launch({
+        //                 args,
+        //                 headless: true,
+        //                 defaultViewport: {
+        //                     deviceScaleFactor: 1,
+        //                     hasTouch: false,
+        //                     height: 1080,
+        //                     isLandscape: true,
+        //                     isMobile: false,
+        //                     width: 1920,
+        //                 },
+        //             });
 
+        //             const page = await browser.newPage();
+
+        //             const loaded = page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 0 });
+
+        //             await page.setContent(html1);
+        //             await loaded;
+        //             const pdf = await page.pdf({
+        //                 format: 'A4',
+        //                 printBackground: true,
+        //             });
+        // console.log(pdf);
+
+        //             await browser.close();
+        //             const pdfData = Buffer.from(pdf, "binary")
+
+        //             return ({
+        //                 status: true,
+        //                 message: "Pdf generated successfully.",
+        //                 data: pdfData,
+        //                 name: existCustomer.name
+        //             });
+
+        //         } catch (error) {
+        //             console.error("Error generating PDF:", error); 
+        //         }
+
+        const browser = await puppeteer.launch({
+            args,
+            headless: true,
+            defaultViewport: {
+                deviceScaleFactor: 1,
+                hasTouch: false,
+                height: 1080,
+                isLandscape: true,
+                isMobile: false,
+                width: 1920,
+            },
+        });
+
+        try {
+            const page = await browser.newPage();
             const loaded = page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 0 });
 
             await page.setContent(html1);
             await loaded;
+
             const pdf = await page.pdf({
                 format: 'A4',
                 printBackground: true,
             });
-console.log(pdf);
 
-            await browser.close();
-            const pdfData = Buffer.from(pdf, "binary")
-
+            console.log('PDF generated successfully.');
+            const pdfData = Buffer.from(pdf, 'binary');
             return ({
                 status: true,
                 message: "Pdf generated successfully.",
                 data: pdfData,
                 name: existCustomer.name
             });
-
         } catch (error) {
-            console.error("Error generating PDF:", error); 
+            console.error('Error generating PDF:', error);
+        } finally {
+            await browser.close();
         }
- 
+
     } catch (error) {
         console.error(error);
         return ({
