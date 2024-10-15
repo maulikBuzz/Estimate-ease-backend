@@ -988,13 +988,16 @@ body {
         ];
         try {
             const browser = await puppeteer.launch({
-                args: [
-                    '--no-sandbox',
-                    '--disable-setuid-sandbox',
-                    '--disable-dev-shm-usage',
-                ],
+                args,
                 headless: true,
-                executablePath: '/usr/bin/google-chrome', // Adjust this to the correct path
+                defaultViewport: {
+                    deviceScaleFactor: 1,
+                    hasTouch: false,
+                    height: 1080,
+                    isLandscape: true,
+                    isMobile: false,
+                    width: 1920,
+                },
             });
               
             const page = await browser.newPage();
