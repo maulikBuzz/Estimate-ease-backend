@@ -4,7 +4,8 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "postinstall": "npx puppeteer browsers install chrome"
   },
   "keywords": [
     "nodejs",
@@ -34,7 +35,7 @@
     "nodemailer-smtp-transport": "^2.4.2",
     "nodemon": "^3.1.4",
     "os": "^0.1.2",
-    "puppeteer": "^23.5.3",
+    "puppeteer": "^23.5.0",
     "sequelize": "^6.37.3",
     "sequelize-cli": "^6.6.2"
   }
