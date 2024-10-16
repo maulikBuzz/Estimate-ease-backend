@@ -933,8 +933,37 @@ const generatePdf = async ({ user_customer_id, user_id }) => {
                         `;
 
 
-        html = html.replace('{{#quotationItems}}', itemsHtml);
-        console.log(html);
+        html = html.replace('{{#quotationItems}}', itemsHtml); 
+
+        const html1 = `<!DOCTYPE html>
+// <html>
+// <head>
+// <style>
+// body {
+//   margin-left: 200px;
+//   background: #5d9ab2 url("img_tree.png") no-repeat top left;
+// }
+
+// .center_div {
+//   border: 1px solid gray;
+//   margin-left: auto;
+//   margin-right: auto;
+//   width: 90%;
+//   background-color: #d0f0f6;
+//   text-align: left;
+//   padding: 8px;
+// }
+// </style>
+// </head>
+// <body>
+
+// <div class="center_div">
+//   <h1>Hello World!</h1>
+//   <p>This example contains some advanced CSS methods you may not have learned yet. But, we will explain these methods in a later chapter in the tutorial.</p>
+// </div>
+
+// </body>
+// </html>`
         
 
         try {
@@ -942,7 +971,7 @@ const generatePdf = async ({ user_customer_id, user_id }) => {
             const options = { format: 'A4', timeout: 300000 }; 
             return new Promise((resolve, reject) => {
 
-                pdf.create(html, options).toBuffer((err, buffer) => {
+                pdf.create(html1, options).toBuffer((err, buffer) => {
                   if (err) {
                     console.error('Error generating PDF:', err);
                     return reject({
