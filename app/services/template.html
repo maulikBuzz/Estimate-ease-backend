@@ -7,7 +7,7 @@
   <title>Quotation PDF</title>
   <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
 
-  <style>
+  <!-- <style>
     .section-title {
       font-weight: bold;
       margin-top: 20px;
@@ -168,7 +168,56 @@
       border: none !important;
       padding: 20px;
     }
+  </style> -->
+
+  <style>
+    /* Existing styles... */
+
+    @page {
+      size: A4;
+      margin: 20mm;
+      /* Add margins to avoid cutting off content */
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      /* Optional: maximum width */
+      margin: 0 auto;
+      padding: 15px;
+    }
+
+    body {
+      font-size: 12px;
+      /* Reduced font size */
+    }
+
+    table {
+      width: 100%;
+      /* Ensure tables fit within the container */
+      margin-bottom: 1rem;
+      border-collapse: collapse;
+    }
+
+    .table td,
+    .table th {
+      padding: 0.5rem;
+      /* Adjust padding */
+      vertical-align: middle;
+    }
+
+    img {
+      max-width: 100%;
+      /* Ensure images fit */
+      height: auto;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+      /* Allow scrolling for wide tables */
+    }
   </style>
+
 </head>
 
 <body class="container my-4">
