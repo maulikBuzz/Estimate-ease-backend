@@ -794,107 +794,185 @@ const updateEstimate = async ({ body, user_customer_id, files, storageType }) =>
             error: error.message
         });
     }
-};
-
-const { PDFDocument, rgb } = require('pdf-lib');
+}; 
 
 const pdf = require('html-pdf');
 
 const generatePdf = async ({ user_customer_id, user_id }) => {
+    const estimateData = await getEstimate({ user_customer_id })
+        if (!estimateData.status) {
+            return ({
+                status: false,
+                message: estimateData.message,
+                data: {}
+            });
+        }
+    
+        const getUserData = await User.findOne({ where: { id: user_id } })
+        if (!getUserData) {
+            return ({
+                status: false,
+                message: "This user is not exists. Please try another one."
+            });
+        }
+    
+        const existCustomer = estimateData.data.customer
+        const existQuotationDetail = estimateData.data.quotation.quotationDetail
+        const existQuotationItems = estimateData.data.quotation.quotationItem ? estimateData.data.quotation.quotationItem : []
+        const formattedDate = new Date(existCustomer.created_at).toISOString().slice(0, 10);
+    
+        const transformData = (existQuotationItems) => {
+            return existQuotationItems.map(item => ({
+                ...item,
+                material: item.subProduct,
+                subProduct: undefined
+            }));
+        };
+        const newData = transformData(existQuotationItems);
+    
+        const finalData = {
+            "name": existCustomer.name,
+            "address": existCustomer.address,
+            "sales_rep": existQuotationDetail.sales_rep,
+            "salesContact": getUserData.phone_number,
+            "date": formattedDate,
+            "contact_no": existCustomer.contact_no,
+            "quote_by": existQuotationDetail.quote_by,
+            "merchant_id": estimateData.data.customer.merchant_id,
+            "quote_number": estimateData.data.quotation.quotationDetail.quote_number,
+            "quotationItems": newData,
+        }
+    
+    
+        const { name, address, contact_no, quote_by, salesContact, quote_number, sales_rep, date, quotationItems } = finalData
     
    
     try {
-       
-       
+        let html = fs.readFileSync(path.join(__dirname, 'template.html'), 'utf8');
+  
+        html = html.replace('{{name}}', name || '')
+            .replace('{{address}}', address || '')
+            .replace('{{contact_no}}', contact_no || '')
+            .replace('{{quote_by}}', quote_by || '')
+            .replace('{{salesContact}}', salesContact || '')
+            .replace('{{sales_rep}}', sales_rep || '')
+            .replace('{{date}}', date || '')
+            .replace('{{quote_number}}', quote_number || '');
 
+
+        let itemsHtml = '';
+
+        let lastTotal = 0
+        if (Array.isArray(quotationItems)) {
+            quotationItems.forEach(item => {
+
+
+                let materialsHtml = '';
+                let finalTotal = 0;
+                if (Array.isArray(item.material)) {
+                    let validMaterials = item.material.filter(material => material.qty);
+                    let validMaterialsCount = validMaterials.length;
+
+                    let imagesHtml = '';
+                    if (Array.isArray(item.images)) {
+                        imagesHtml = item.images.map((image, i) => `
+                    <img src="https://estimate-ease-backend.onrender.com${image.image_url}" alt="Image ${i + 1}" style="width: 80px; margin: 5px;">
+                `).join('');
+                    }
+
+                    item.material.forEach((material, index) => {
+                        if (material.qty) {
+                            let total = material.price * material.qty;
+                            finalTotal += total;
+
+                            materialsHtml += `
+                        <tr>
+                            ${index === 0 ? `<td rowSpan=${validMaterialsCount} class=''>
+                            <div class=""> 
+                                <label>${item.item_name || 'N/A'}</label>
+                                </br>
+                                <label>${item.name || ''}</label>
+                                </br>
+                            ${imagesHtml}
+                            </div>
+                            </td>` : ''}
+                            <td>${material.name || ''}</td>
+                            <td>${material.unit_of_measure || ''}</td>
+                            <td>${material.qty || ''}</td>
+                            <td>${material.price || ''}</td>
+                            <td class='align-content-center'>
+                                <div class='d-flex'>${total || ''}</div>
+                            </td>
+                            ${index === 0 ? `<td rowSpan=${validMaterialsCount} class='align-content-center'>
+                                <div class='d-flex'>
+                                    ${item.total}
+                                </div>
+                            </td>` : ''}
+                        </tr>
+                    `;
+                        }
+                    });
+                }
+
+                lastTotal += finalTotal
+
+                itemsHtml += `
+                                ${materialsHtml}
+                                            
+                    `;
+            });
+        } else {
+            itemsHtml = '<p>No items available.</p>';
+        }
+
+        itemsHtml += `
+                                <tr>
+                                    <td colspan="6" class="text-right"><strong>Final Total:</strong></td>
+                                    <td>${lastTotal.toFixed(2)}</td>
+                                </tr>
+                        `;
+
+
+        html = html.replace('{{#quotationItems}}', itemsHtml);
         const html1 = `<!DOCTYPE html>
 <html>
 <head>
-<style>
-body {
-  margin-left: 200px;
-  background: #5d9ab2 url("img_tree.png") no-repeat top left;
-}
+  <title>PDF Document</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    body {
+      margin-left: 200px;
+      background: #5d9ab2 url("img_tree.png") no-repeat top left;
+    }
 
-.center_div {
-  border: 1px solid gray;
-  margin-left: auto;
-  margin-right: auto;
-  width: 90%;
-  background-color: #d0f0f6;
-  text-align: left;
-  padding: 8px;
-}
-</style>
+    .center_div {
+      border: 3px solid gray;
+      margin-left: auto;
+      margin-right: auto;
+      width: 90%;
+      background-color: #5d9ab2;
+      text-align: left;
+      padding: 8px;
+    }
+  </style>
 </head>
 <body>
 
 <div class="center_div">
-  <h1>Hello World!</h1>
+  <h1 class="text-center">Hello World!</h1>
   <p>This example contains some advanced CSS methods you may not have learned yet. But, we will explain these methods in a later chapter in the tutorial.</p>
 </div>
 
 </body>
-</html>`
-
-      
+</html>`;
+  
  
         try {
-            // Create a new PDFDocument
-            // const pdfDoc = await PDFDocument.create();
-            // const A4_WIDTH = 595.28; // Width in points
-            // const A4_HEIGHT = 841.89; // Height in points
-            // const page = pdfDoc.addPage([A4_WIDTH, A4_HEIGHT]);
-        
-            // // Draw background rectangle (simulating background)
-            // page.drawRectangle({
-            //   x: 0,
-            //   y: 0,
-            //   width: A4_WIDTH,
-            //   height: A4_HEIGHT,
-            //   color: rgb(0.365, 0.604, 0.698), // Light blue background color
-            // });
-            // // Draw text based on the HTML content
-            // page.drawText(html, {
-            //     x: 50, // X position from the left
-            //     y: A4_HEIGHT - 100, // Y position from the bottom
-            //     size: 20,
-            //     color: rgb(0, 0, 0),
-            //     lineHeight: 24, // Adjust line height for spacing
-            //   });
-        
-            // // Serialize the PDFDocument to bytes
-            // const pdfBytes = await pdfDoc.save();
-
-            // console.log(pdfBytes);
-            
-        
-            // const pdfData = Buffer.from(pdfBytes, 'binary');
-
-            const options = { format: 'A4' };
- 
-            // const pdfData = pdf.create(html, options) 
-
-            //     // Send the PDF as the response
-            //     // res.setHeader('Content-Type', 'application/pdf');
-            //     // res.setHeader('Content-Disposition', 'attachment; filename=generated.pdf');
-            //     // res.send(buffer);
-            // console.log(pdfData);
-
-            //     const buffer = Buffer.from(pdfData, 'binary');
-            //     console.log(buffer);
-                
-
-            //     return ({
-            //         status: true,
-            //         message: "Pdf generated successfully.",
-            //         data: buffer,
-            //         name: existCustomer.name
-            //     });
-
+           
+            const options = { format: 'A4', timeout: 300000 }; 
             return new Promise((resolve, reject) => {
-                // Create PDF from HTML
-                pdf.create(html1, options).toBuffer((err, buffer) => {
+
+                pdf.create(html, options).toBuffer((err, buffer) => {
                   if (err) {
                     console.error('Error generating PDF:', err);
                     return reject({
@@ -902,13 +980,12 @@ body {
                       message: 'Error generating PDF',
                     });
                   }
-            
-                  // Return structured response
+             
                   resolve({
                     status: true,
                     message: "PDF generated successfully.",
-                    data: buffer.toString('base64'), // Convert buffer to base64 for JSON response
-                    name: "Customer Name", // Replace with actual customer name if available
+                    data: buffer.toString('base64'),  
+                    name: existCustomer.name,  
                   });
                 });
               });

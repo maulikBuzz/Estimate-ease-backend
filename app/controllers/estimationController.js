@@ -372,11 +372,7 @@ const generatePdf = async (req, res) => {
         const fileName = pdfData.name + ".pdf"
         console.log(fileName);
         const customFileName = 'hello.pdf';
-        console.log(customFileName);
-
-        // res.setHeader('Content-Type', 'application/pdf');
-        // res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-        // res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+        console.log(customFileName); 
         res.status(200).json(pdfData);
 
 
