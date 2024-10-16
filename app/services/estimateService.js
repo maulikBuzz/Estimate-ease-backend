@@ -934,39 +934,9 @@ const generatePdf = async ({ user_customer_id, user_id }) => {
 
 
         html = html.replace('{{#quotationItems}}', itemsHtml);
-        const html1 = `<!DOCTYPE html>
-<html>
-<head>
-  <title>PDF Document</title>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <style>
-    body {
-      margin-left: 200px;
-      background: #5d9ab2 url("img_tree.png") no-repeat top left;
-    }
+        console.log(html);
+        
 
-    .center_div {
-      border: 3px solid gray;
-      margin-left: auto;
-      margin-right: auto;
-      width: 90%;
-      background-color: #5d9ab2;
-      text-align: left;
-      padding: 8px;
-    }
-  </style>
-</head>
-<body>
-
-<div class="center_div">
-  <h1 class="text-center">Hello World!</h1>
-  <p>This example contains some advanced CSS methods you may not have learned yet. But, we will explain these methods in a later chapter in the tutorial.</p>
-</div>
-
-</body>
-</html>`;
-  
- 
         try {
            
             const options = { format: 'A4', timeout: 300000 }; 

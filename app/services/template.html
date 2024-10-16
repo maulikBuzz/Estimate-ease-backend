@@ -118,9 +118,13 @@
     .table thead th {
       vertical-align: bottom;
       border-bottom: 2px solid #dee2e6;
+      border-left: 2px solid #dee2e6;
+      border-right: 2px solid #dee2e6;
     }
-
+    
     .table tbody+tbody {
+      border-left: 2px solid #dee2e6;
+      border-right: 2px solid #dee2e6;
       border-top: 2px solid #dee2e6;
     }
 
@@ -129,6 +133,8 @@
       padding: 0.75rem;
       vertical-align: top;
       border-top: 1px solid #dee2e6;
+      border-left: 2px solid #dee2e6;
+      border-right: 2px solid #dee2e6;
     }
 
     .thead-light th {
@@ -155,6 +161,7 @@
     .table-main th,
     .table-main td {
       border: none !important;
+      padding: 20px; 
     }
   </style>
 </head>
@@ -164,8 +171,7 @@
   <h1 class="mb-4">Estimate</h1>
   <form>
     <h2 class="mb-3">Customer Details</h2>
-   
-
+    
     <table class="table table-main" style="border: none;">
       <tbody>
         <tr>
