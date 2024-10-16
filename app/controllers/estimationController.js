@@ -367,16 +367,17 @@ const generatePdf = async (req, res) => {
         let { user_customer_id } = req.query
         const user_id = req.id
 
-        const pdfData = await Estimate.generatePdf({ user_customer_id, user_id })
+        const pdfData = await Estimate.generatePdf({ user_customer_id, user_id }) 
+          
         const fileName = pdfData.name + ".pdf"
         console.log(fileName);
         const customFileName = 'hello.pdf';
         console.log(customFileName);
 
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-        res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
-        res.send(pdfData.data);
+        // res.setHeader('Content-Type', 'application/pdf');
+        // res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+        // res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+        res.status(200).json(pdfData);
 
 
     } catch (error) {

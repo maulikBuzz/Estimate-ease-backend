@@ -798,67 +798,122 @@ const updateEstimate = async ({ body, user_customer_id, files, storageType }) =>
 
 const { PDFDocument, rgb } = require('pdf-lib');
 
+const pdf = require('html-pdf');
+
 const generatePdf = async ({ user_customer_id, user_id }) => {
+    
    
     try {
        
+       
 
         const html1 = `<!DOCTYPE html>
-                            <html>
-                            <head>
-                            <style>
-                            body {
-                            margin-left: 200px;
-                            background: #5d9ab2 url("img_tree.png") no-repeat top left;
-                            }
+<html>
+<head>
+<style>
+body {
+  margin-left: 200px;
+  background: #5d9ab2 url("img_tree.png") no-repeat top left;
+}
 
-                            .center_div {
-                            border: 1px solid gray;
-                            margin-left: auto;
-                            margin-right: auto;
-                            width: 90%;
-                            background-color: #d0f0f6;
-                            text-align: left;
-                            padding: 8px;
-                            }
-                            </style>
-                            </head>
-                            <body>
+.center_div {
+  border: 1px solid gray;
+  margin-left: auto;
+  margin-right: auto;
+  width: 90%;
+  background-color: #d0f0f6;
+  text-align: left;
+  padding: 8px;
+}
+</style>
+</head>
+<body>
 
-                            <div class="center_div">
-                            <h1>Hello World!</h1>
-                            <p>This example contains some advanced CSS methods you may not have learned yet. But, we will explain these methods in a later chapter in the tutorial.</p>
-                            </div>
+<div class="center_div">
+  <h1>Hello World!</h1>
+  <p>This example contains some advanced CSS methods you may not have learned yet. But, we will explain these methods in a later chapter in the tutorial.</p>
+</div>
 
-                            </body>
-                            </html>`
+</body>
+</html>`
+
+      
  
         try {
             // Create a new PDFDocument
-            const pdfDoc = await PDFDocument.create();
-            const page = pdfDoc.addPage([600, 400]);
+            // const pdfDoc = await PDFDocument.create();
+            // const A4_WIDTH = 595.28; // Width in points
+            // const A4_HEIGHT = 841.89; // Height in points
+            // const page = pdfDoc.addPage([A4_WIDTH, A4_HEIGHT]);
         
-            // Draw text based on the HTML content
-            page.drawText(html1, {
-              x: 50,
-              y: 350,
-              size: 20,
-              color: rgb(0, 0, 0),
-            });
+            // // Draw background rectangle (simulating background)
+            // page.drawRectangle({
+            //   x: 0,
+            //   y: 0,
+            //   width: A4_WIDTH,
+            //   height: A4_HEIGHT,
+            //   color: rgb(0.365, 0.604, 0.698), // Light blue background color
+            // });
+            // // Draw text based on the HTML content
+            // page.drawText(html, {
+            //     x: 50, // X position from the left
+            //     y: A4_HEIGHT - 100, // Y position from the bottom
+            //     size: 20,
+            //     color: rgb(0, 0, 0),
+            //     lineHeight: 24, // Adjust line height for spacing
+            //   });
         
-            // Serialize the PDFDocument to bytes
-            const pdfBytes = await pdfDoc.save();
+            // // Serialize the PDFDocument to bytes
+            // const pdfBytes = await pdfDoc.save();
 
-            console.log(pdfBytes);
+            // console.log(pdfBytes);
             
         
-            const pdfData = Buffer.from(pdfBytes, 'binary');
-            return ({
-                status: true,
-                message: "Pdf generated successfully.",
-                data: pdfData,
-                name: "existCustomer.name"
-            });
+            // const pdfData = Buffer.from(pdfBytes, 'binary');
+
+            const options = { format: 'A4' };
+ 
+            // const pdfData = pdf.create(html, options) 
+
+            //     // Send the PDF as the response
+            //     // res.setHeader('Content-Type', 'application/pdf');
+            //     // res.setHeader('Content-Disposition', 'attachment; filename=generated.pdf');
+            //     // res.send(buffer);
+            // console.log(pdfData);
+
+            //     const buffer = Buffer.from(pdfData, 'binary');
+            //     console.log(buffer);
+                
+
+            //     return ({
+            //         status: true,
+            //         message: "Pdf generated successfully.",
+            //         data: buffer,
+            //         name: existCustomer.name
+            //     });
+
+            return new Promise((resolve, reject) => {
+                // Create PDF from HTML
+                pdf.create(html1, options).toBuffer((err, buffer) => {
+                  if (err) {
+                    console.error('Error generating PDF:', err);
+                    return reject({
+                      status: false,
+                      message: 'Error generating PDF',
+                    });
+                  }
+            
+                  // Return structured response
+                  resolve({
+                    status: true,
+                    message: "PDF generated successfully.",
+                    data: buffer.toString('base64'), // Convert buffer to base64 for JSON response
+                    name: "Customer Name", // Replace with actual customer name if available
+                  });
+                });
+              });
+            
+
           } catch (err) {
             console.error('Error generating PDF:', err); 
           }
