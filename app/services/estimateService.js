@@ -971,7 +971,7 @@ const generatePdf = async ({ user_customer_id, user_id }) => {
             const options = { format: 'A4', timeout: 300000 }; 
             return new Promise((resolve, reject) => {
 
-                pdf.create(html1, options).toBuffer((err, buffer) => {
+                pdf.create(html, options).toBuffer((err, buffer) => {
                   if (err) {
                     console.error('Error generating PDF:', err);
                     return reject({
