@@ -9,4 +9,6 @@ services:
     build:
     commands:
       - ./render-build.sh
+      - npm run migrate
+      - npm install
 
