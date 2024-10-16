@@ -1,10 +1,10 @@
-services:
-  mysql:
-    image: mysql:latest
-    environment:
-      MYSQL_ROOT_PASSWORD: Ql9krH6wyYDoLHyMFqin
-      MYSQL_DATABASE: bl0h5trasxxqeuvggky5
-      MYSQL_USER: uzk9tntvj4ychlig
-      MYSQL_PASSWORD: Ql9krH6wyYDoLHyMFqin
-    ports:
-      - "3306:3306"
+# services:
+#   mysql:
+#     image: mysql:latest
+#     environment:
+#       MYSQL_ROOT_PASSWORD: Ql9krH6wyYDoLHyMFqin
+#       MYSQL_DATABASE: bl0h5trasxxqeuvggky5
+#       MYSQL_USER: uzk9tntvj4ychlig
+#       MYSQL_PASSWORD: Ql9krH6wyYDoLHyMFqin
+#     ports:
+#       - "3306:3306"

@@ -4,9 +4,7 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon app.js",
-    "postinstall": "npx puppeteer browsers install chrome",
-    "migrate": "sequelize db:migrate"
+    "dev": "nodemon app.js"
   },
   "keywords": [
     "nodejs",
@@ -23,7 +21,7 @@
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.19.2",
+    "express": "^4.21.1",
     "express-validator": "^7.2.0",
     "fs": "^0.0.1-security",
     "handlebars": "^4.7.8",
@@ -36,6 +34,7 @@
     "nodemailer-smtp-transport": "^2.4.2",
     "nodemon": "^3.1.4",
     "os": "^0.1.2",
+    "pdf-lib": "^1.1.1",
     "puppeteer": "^23.5.0",
     "puppeteer-core": "^23.5.3",
     "sequelize": "^6.37.3",

@@ -796,278 +796,72 @@ const updateEstimate = async ({ body, user_customer_id, files, storageType }) =>
     }
 };
 
+const { PDFDocument, rgb } = require('pdf-lib');
+
 const generatePdf = async ({ user_customer_id, user_id }) => {
-    const estimateData = await getEstimate({ user_customer_id })
-    if (!estimateData.status) {
-        return ({
-            status: false,
-            message: estimateData.message,
-            data: {}
-        });
-    }
-
-    const getUserData = await User.findOne({ where: { id: user_id } })
-    if (!getUserData) {
-        return ({
-            status: false,
-            message: "This user is not exists. Please try another one."
-        });
-    }
-
-    const existCustomer = estimateData.data.customer
-    const existQuotationDetail = estimateData.data.quotation.quotationDetail
-    const existQuotationItems = estimateData.data.quotation.quotationItem ? estimateData.data.quotation.quotationItem : []
-    const formattedDate = new Date(existCustomer.created_at).toISOString().slice(0, 10);
-
-    const transformData = (existQuotationItems) => {
-        return existQuotationItems.map(item => ({
-            ...item,
-            material: item.subProduct,
-            subProduct: undefined
-        }));
-    };
-    const newData = transformData(existQuotationItems);
-
-    const finalData = {
-        "name": existCustomer.name,
-        "address": existCustomer.address,
-        "sales_rep": existQuotationDetail.sales_rep,
-        "salesContact": getUserData.phone_number,
-        "date": formattedDate,
-        "contact_no": existCustomer.contact_no,
-        "quote_by": existQuotationDetail.quote_by,
-        "merchant_id": estimateData.data.customer.merchant_id,
-        "quote_number": estimateData.data.quotation.quotationDetail.quote_number,
-        "quotationItems": newData,
-    }
-
-
-    const { name, address, contact_no, quote_by, salesContact, quote_number, sales_rep, date, quotationItems } = finalData
-
+   
     try {
-        let html = fs.readFileSync(path.join(__dirname, 'template.html'), 'utf8');
-
-        html = html.replace('{{name}}', name || '')
-            .replace('{{address}}', address || '')
-            .replace('{{contact_no}}', contact_no || '')
-            .replace('{{quote_by}}', quote_by || '')
-            .replace('{{salesContact}}', salesContact || '')
-            .replace('{{sales_rep}}', sales_rep || '')
-            .replace('{{date}}', date || '')
-            .replace('{{quote_number}}', quote_number || '');
-
-
-        let itemsHtml = '';
-
-        let lastTotal = 0
-        if (Array.isArray(quotationItems)) {
-            quotationItems.forEach(item => {
-
-
-                let materialsHtml = '';
-                let finalTotal = 0;
-                if (Array.isArray(item.material)) {
-                    let validMaterials = item.material.filter(material => material.qty);
-                    let validMaterialsCount = validMaterials.length;
-
-                    let imagesHtml = '';
-                    if (Array.isArray(item.images)) {
-                        imagesHtml = item.images.map((image, i) => `
-                    <img src="https://estimate-ease-backend.onrender.com${image.image_url}" alt="Image ${i + 1}" style="width: 80px; margin: 5px;">
-                `).join('');
-                    }
-
-                    item.material.forEach((material, index) => {
-                        if (material.qty) {
-                            let total = material.price * material.qty;
-                            finalTotal += total;
-
-                            materialsHtml += `
-                        <tr>
-                            ${index === 0 ? `<td rowSpan=${validMaterialsCount} class=''>
-                            <div class=""> 
-                                <label>${item.item_name || 'N/A'}</label>
-                                </br>
-                                <label>${item.name || ''}</label>
-                                </br>
-                            ${imagesHtml}
-                            </div>
-                            </td>` : ''}
-                            <td>${material.name || ''}</td>
-                            <td>${material.unit_of_measure || ''}</td>
-                            <td>${material.qty || ''}</td>
-                            <td>${material.price || ''}</td>
-                            <td class='align-content-center'>
-                                <div class='d-flex'>${total || ''}</div>
-                            </td>
-                            ${index === 0 ? `<td rowSpan=${validMaterialsCount} class='align-content-center'>
-                                <div class='d-flex'>
-                                    ${item.total}
-                                </div>
-                            </td>` : ''}
-                        </tr>
-                    `;
-                        }
-                    });
-                }
-
-                lastTotal += finalTotal
-
-                itemsHtml += `
-                                ${materialsHtml}
-                                            
-                    `;
-            });
-        } else {
-            itemsHtml = '<p>No items available.</p>';
-        }
-
-        itemsHtml += `
-                                <tr>
-                                    <td colspan="6" class="text-right"><strong>Final Total:</strong></td>
-                                    <td>${lastTotal.toFixed(2)}</td>
-                                </tr>
-                        `;
-
-
-        html = html.replace('{{#quotationItems}}', itemsHtml);
+       
 
         const html1 = `<!DOCTYPE html>
-<html>
-<head>
-<style>
-body {
-  margin-left: 200px;
-  background: #5d9ab2 url("img_tree.png") no-repeat top left;
-}
+                            <html>
+                            <head>
+                            <style>
+                            body {
+                            margin-left: 200px;
+                            background: #5d9ab2 url("img_tree.png") no-repeat top left;
+                            }
 
-.center_div {
-  border: 1px solid gray;
-  margin-left: auto;
-  margin-right: auto;
-  width: 90%;
-  background-color: #d0f0f6;
-  text-align: left;
-  padding: 8px;
-}
-</style>
-</head>
-<body>
+                            .center_div {
+                            border: 1px solid gray;
+                            margin-left: auto;
+                            margin-right: auto;
+                            width: 90%;
+                            background-color: #d0f0f6;
+                            text-align: left;
+                            padding: 8px;
+                            }
+                            </style>
+                            </head>
+                            <body>
 
-<div class="center_div">
-  <h1>Hello World!</h1>
-  <p>This example contains some advanced CSS methods you may not have learned yet. But, we will explain these methods in a later chapter in the tutorial.</p>
-</div>
+                            <div class="center_div">
+                            <h1>Hello World!</h1>
+                            <p>This example contains some advanced CSS methods you may not have learned yet. But, we will explain these methods in a later chapter in the tutorial.</p>
+                            </div>
 
-</body>
-</html>`
-
-        const args = [
-            '--allow-running-insecure-content',
-            '--autoplay-policy=user-gesture-required',
-            '--disable-component-update',
-            '--disable-domain-reliability',
-            '--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process',
-            '--disable-print-preview',
-            '--disable-setuid-sandbox',
-            '--disable-site-isolation-trials',
-            '--disable-speech-api',
-            '--disable-web-security',
-            '--disk-cache-size=33554432',
-            '--enable-features=SharedArrayBuffer',
-            '--hide-scrollbars',
-            '--ignore-gpu-blocklist',
-            '--in-process-gpu',
-            '--mute-audio',
-            '--no-default-browser-check',
-            '--no-pings',
-            '--no-sandbox',
-            '--no-zygote',
-            '--use-gl=swiftshader',
-            '--window-size=1920,1080',
-            '--disable-dev-shm-usage',
-            '--disable-gpu',
-        ];
-        //         try {
-        //             const browser = await puppeteer.launch({
-        //                 args,
-        //                 headless: true,
-        //                 defaultViewport: {
-        //                     deviceScaleFactor: 1,
-        //                     hasTouch: false,
-        //                     height: 1080,
-        //                     isLandscape: true,
-        //                     isMobile: false,
-        //                     width: 1920,
-        //                 },
-        //             });
-
-        //             const page = await browser.newPage();
-
-        //             const loaded = page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 0 });
-
-        //             await page.setContent(html1);
-        //             await loaded;
-        //             const pdf = await page.pdf({
-        //                 format: 'A4',
-        //                 printBackground: true,
-        //             });
-        // console.log(pdf);
-
-        //             await browser.close();
-        //             const pdfData = Buffer.from(pdf, "binary")
-
-        //             return ({
-        //                 status: true,
-        //                 message: "Pdf generated successfully.",
-        //                 data: pdfData,
-        //                 name: existCustomer.name
-        //             });
-
-        //         } catch (error) {
-        //             console.error("Error generating PDF:", error); 
-        //         }
-
-        const browser = await puppeteer.launch({
-            executablePath: '/usr/bin/chromium-browser',
-            args,
-            headless: true,
-            defaultViewport: {
-                deviceScaleFactor: 1,
-                hasTouch: false,
-                height: 1080,
-                isLandscape: true,
-                isMobile: false,
-                width: 1920,
-            }, 
-        });
-          
+                            </body>
+                            </html>`
+ 
         try {
-            const page = await browser.newPage();
-            const loaded = page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 0 });
-
-            await page.setContent(html1);
-            await loaded; 
-
-            const pdf = await page.pdf({
-                format: 'A4',
-                printBackground: true,
+            // Create a new PDFDocument
+            const pdfDoc = await PDFDocument.create();
+            const page = pdfDoc.addPage([600, 400]);
+        
+            // Draw text based on the HTML content
+            page.drawText(html1, {
+              x: 50,
+              y: 350,
+              size: 20,
+              color: rgb(0, 0, 0),
             });
-            console.log(pdf);
+        
+            // Serialize the PDFDocument to bytes
+            const pdfBytes = await pdfDoc.save();
 
-            console.log('PDF generated successfully.');
-            const pdfData = Buffer.from(pdf, 'binary');
+            console.log(pdfBytes);
+            
+        
+            const pdfData = Buffer.from(pdfBytes, 'binary');
             return ({
                 status: true,
                 message: "Pdf generated successfully.",
                 data: pdfData,
-                name: existCustomer.name
+                name: "existCustomer.name"
             });
-        } catch (error) {
-            console.error('Error generating PDF:', error);
-        } finally {
-            await browser.close();
-        }
+          } catch (err) {
+            console.error('Error generating PDF:', err); 
+          }
 
     } catch (error) {
         console.error(error);
@@ -1078,6 +872,288 @@ body {
         });
     }
 };
+// const generatePdf = async ({ user_customer_id, user_id }) => {
+//     const estimateData = await getEstimate({ user_customer_id })
+//     if (!estimateData.status) {
+//         return ({
+//             status: false,
+//             message: estimateData.message,
+//             data: {}
+//         });
+//     }
+
+//     const getUserData = await User.findOne({ where: { id: user_id } })
+//     if (!getUserData) {
+//         return ({
+//             status: false,
+//             message: "This user is not exists. Please try another one."
+//         });
+//     }
+
+//     const existCustomer = estimateData.data.customer
+//     const existQuotationDetail = estimateData.data.quotation.quotationDetail
+//     const existQuotationItems = estimateData.data.quotation.quotationItem ? estimateData.data.quotation.quotationItem : []
+//     const formattedDate = new Date(existCustomer.created_at).toISOString().slice(0, 10);
+
+//     const transformData = (existQuotationItems) => {
+//         return existQuotationItems.map(item => ({
+//             ...item,
+//             material: item.subProduct,
+//             subProduct: undefined
+//         }));
+//     };
+//     const newData = transformData(existQuotationItems);
+
+//     const finalData = {
+//         "name": existCustomer.name,
+//         "address": existCustomer.address,
+//         "sales_rep": existQuotationDetail.sales_rep,
+//         "salesContact": getUserData.phone_number,
+//         "date": formattedDate,
+//         "contact_no": existCustomer.contact_no,
+//         "quote_by": existQuotationDetail.quote_by,
+//         "merchant_id": estimateData.data.customer.merchant_id,
+//         "quote_number": estimateData.data.quotation.quotationDetail.quote_number,
+//         "quotationItems": newData,
+//     }
+
+
+//     const { name, address, contact_no, quote_by, salesContact, quote_number, sales_rep, date, quotationItems } = finalData
+
+//     try {
+//         let html = fs.readFileSync(path.join(__dirname, 'template.html'), 'utf8');
+
+//         html = html.replace('{{name}}', name || '')
+//             .replace('{{address}}', address || '')
+//             .replace('{{contact_no}}', contact_no || '')
+//             .replace('{{quote_by}}', quote_by || '')
+//             .replace('{{salesContact}}', salesContact || '')
+//             .replace('{{sales_rep}}', sales_rep || '')
+//             .replace('{{date}}', date || '')
+//             .replace('{{quote_number}}', quote_number || '');
+
+
+//         let itemsHtml = '';
+
+//         let lastTotal = 0
+//         if (Array.isArray(quotationItems)) {
+//             quotationItems.forEach(item => {
+
+
+//                 let materialsHtml = '';
+//                 let finalTotal = 0;
+//                 if (Array.isArray(item.material)) {
+//                     let validMaterials = item.material.filter(material => material.qty);
+//                     let validMaterialsCount = validMaterials.length;
+
+//                     let imagesHtml = '';
+//                     if (Array.isArray(item.images)) {
+//                         imagesHtml = item.images.map((image, i) => `
+//                     <img src="https://estimate-ease-backend.onrender.com${image.image_url}" alt="Image ${i + 1}" style="width: 80px; margin: 5px;">
+//                 `).join('');
+//                     }
+
+//                     item.material.forEach((material, index) => {
+//                         if (material.qty) {
+//                             let total = material.price * material.qty;
+//                             finalTotal += total;
+
+//                             materialsHtml += `
+//                         <tr>
+//                             ${index === 0 ? `<td rowSpan=${validMaterialsCount} class=''>
+//                             <div class=""> 
+//                                 <label>${item.item_name || 'N/A'}</label>
+//                                 </br>
+//                                 <label>${item.name || ''}</label>
+//                                 </br>
+//                             ${imagesHtml}
+//                             </div>
+//                             </td>` : ''}
+//                             <td>${material.name || ''}</td>
+//                             <td>${material.unit_of_measure || ''}</td>
+//                             <td>${material.qty || ''}</td>
+//                             <td>${material.price || ''}</td>
+//                             <td class='align-content-center'>
+//                                 <div class='d-flex'>${total || ''}</div>
+//                             </td>
+//                             ${index === 0 ? `<td rowSpan=${validMaterialsCount} class='align-content-center'>
+//                                 <div class='d-flex'>
+//                                     ${item.total}
+//                                 </div>
+//                             </td>` : ''}
+//                         </tr>
+//                     `;
+//                         }
+//                     });
+//                 }
+
+//                 lastTotal += finalTotal
+
+//                 itemsHtml += `
+//                                 ${materialsHtml}
+                                            
+//                     `;
+//             });
+//         } else {
+//             itemsHtml = '<p>No items available.</p>';
+//         }
+
+//         itemsHtml += `
+//                                 <tr>
+//                                     <td colspan="6" class="text-right"><strong>Final Total:</strong></td>
+//                                     <td>${lastTotal.toFixed(2)}</td>
+//                                 </tr>
+//                         `;
+
+
+//         html = html.replace('{{#quotationItems}}', itemsHtml);
+
+//         const html1 = `<!DOCTYPE html>
+// <html>
+// <head>
+// <style>
+// body {
+//   margin-left: 200px;
+//   background: #5d9ab2 url("img_tree.png") no-repeat top left;
+// }
+
+// .center_div {
+//   border: 1px solid gray;
+//   margin-left: auto;
+//   margin-right: auto;
+//   width: 90%;
+//   background-color: #d0f0f6;
+//   text-align: left;
+//   padding: 8px;
+// }
+// </style>
+// </head>
+// <body>
+
+// <div class="center_div">
+//   <h1>Hello World!</h1>
+//   <p>This example contains some advanced CSS methods you may not have learned yet. But, we will explain these methods in a later chapter in the tutorial.</p>
+// </div>
+
+// </body>
+// </html>`
+
+//         const args = [
+//             '--allow-running-insecure-content',
+//             '--autoplay-policy=user-gesture-required',
+//             '--disable-component-update',
+//             '--disable-domain-reliability',
+//             '--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process',
+//             '--disable-print-preview',
+//             '--disable-setuid-sandbox',
+//             '--disable-site-isolation-trials',
+//             '--disable-speech-api',
+//             '--disable-web-security',
+//             '--disk-cache-size=33554432',
+//             '--enable-features=SharedArrayBuffer',
+//             '--hide-scrollbars',
+//             '--ignore-gpu-blocklist',
+//             '--in-process-gpu',
+//             '--mute-audio',
+//             '--no-default-browser-check',
+//             '--no-pings',
+//             '--no-sandbox',
+//             '--no-zygote',
+//             '--use-gl=swiftshader',
+//             '--window-size=1920,1080',
+//             '--disable-dev-shm-usage',
+//             '--disable-gpu',
+//         ];
+//         //         try {
+//         //             const browser = await puppeteer.launch({
+//         //                 args,
+//         //                 headless: true,
+//         //                 defaultViewport: {
+//         //                     deviceScaleFactor: 1,
+//         //                     hasTouch: false,
+//         //                     height: 1080,
+//         //                     isLandscape: true,
+//         //                     isMobile: false,
+//         //                     width: 1920,
+//         //                 },
+//         //             });
+
+//         //             const page = await browser.newPage();
+
+//         //             const loaded = page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 0 });
+
+//         //             await page.setContent(html1);
+//         //             await loaded;
+//         //             const pdf = await page.pdf({
+//         //                 format: 'A4',
+//         //                 printBackground: true,
+//         //             });
+//         // console.log(pdf);
+
+//         //             await browser.close();
+//         //             const pdfData = Buffer.from(pdf, "binary")
+
+//         //             return ({
+//         //                 status: true,
+//         //                 message: "Pdf generated successfully.",
+//         //                 data: pdfData,
+//         //                 name: existCustomer.name
+//         //             });
+
+//         //         } catch (error) {
+//         //             console.error("Error generating PDF:", error); 
+//         //         }
+
+//         const browser = await puppeteer.launch({
+//             executablePath: '/usr/bin/chromium-browser',
+//             args,
+//             headless: true,
+//             defaultViewport: {
+//                 deviceScaleFactor: 1,
+//                 hasTouch: false,
+//                 height: 1080,
+//                 isLandscape: true,
+//                 isMobile: false,
+//                 width: 1920,
+//             }, 
+//         });
+          
+//         try {
+//             const page = await browser.newPage();
+//             const loaded = page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 0 });
+
+//             await page.setContent(html1);
+//             await loaded; 
+
+//             const pdf = await page.pdf({
+//                 format: 'A4',
+//                 printBackground: true,
+//             });
+//             console.log(pdf);
+
+//             console.log('PDF generated successfully.');
+//             const pdfData = Buffer.from(pdf, 'binary');
+//             return ({
+//                 status: true,
+//                 message: "Pdf generated successfully.",
+//                 data: pdfData,
+//                 name: existCustomer.name
+//             });
+//         } catch (error) {
+//             console.error('Error generating PDF:', error);
+//         } finally {
+//             await browser.close();
+//         }
+
+//     } catch (error) {
+//         console.error(error);
+//         return ({
+//             status: false,
+//             message: "An error occurred. Please try again.",
+//             error: error.message
+//         });
+//     }
+// };
 
 module.exports = {
     createEstimate,

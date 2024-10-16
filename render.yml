@@ -1,14 +1,14 @@
-services:
-  - type: web
-    name: my-service
-    buildCommand: 
-      - npm install 
-      - apt-get update
-      - apt-get install -y chromium-browser 
-    startCommand: npm start
-    build:
-    commands:
-      - ./render-build.sh
-      - npm run migrate
-      - npm install
+# services:
+#   - type: web
+#     name: my-service
+#     buildCommand: 
+#       - npm install 
+#       - apt-get update
+#       - apt-get install -y chromium-browser 
+#     startCommand: npm start
+#     build:
+#     commands:
+#       - ./render-build.sh
+#       - npm run migrate
+#       - npm install
 
